@@ -12,8 +12,7 @@ if(NOT DEFINED BACKSCRUB)
 endif()
 
 # Pull in backscrub and dependencies
-include(${BACKSCRUB}/build/BackscrubTargets.cmake)
-set(LIBBACKSCRUB_INCLUDE_DIR ${BACKSCRUB})
+add_subdirectory(${BACKSCRUB} libbackscrub EXCLUDE_FROM_ALL)
 
 set(obs-backscrub_SOURCES
         obs-backscrub.cpp)
@@ -24,7 +23,7 @@ add_library(obs-backscrub MODULE
 set_target_properties(obs-backscrub PROPERTIES PREFIX "")
 
 target_include_directories(obs-backscrub
-        PUBLIC ${LIBBACKSCRUB_INCLUDE_DIR})
+        PUBLIC ${BACKSCRUB})
 
 target_link_libraries(obs-backscrub
         ${LIBOBS_LIBRARIES}
