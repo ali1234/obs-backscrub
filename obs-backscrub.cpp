@@ -6,7 +6,7 @@
 #include <condition_variable>
 #include <obs-module.h>
 #include <stdio.h>
-#include "lib/libbackscrub.h"
+#include "libbackscrub.h"
 
 // Setting names & default values
 static const char MODEL_SETTING[] = "Segmentation model";

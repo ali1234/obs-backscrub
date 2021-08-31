@@ -7,13 +7,16 @@ find_package(LibObs REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 
-if(NOT DEFINED BACKSCRUB)
-        set(BACKSCRUB ../backscrub)
+if(NOT DEFINED BACKSCRUB_BUILD_DIR)
+        set(BACKSCRUB_BUILD_DIR ../backscrub/build)
+endif()
+
+if (NOT DEFINED LIBBACKSCRUB_INCLUDE_DIR)
+        set(LIBBACKSCRUB_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # Pull in backscrub and dependencies
-include(${BACKSCRUB}/build/BackscrubTargets.cmake)
-set(LIBBACKSCRUB_INCLUDE_DIR ${BACKSCRUB})
+include(${BACKSCRUB_BUILD_DIR}/BackscrubTargets.cmake)
 
 set(obs-backscrub_SOURCES
         obs-backscrub.cpp)
