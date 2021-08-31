@@ -36,7 +36,7 @@ OBS_DECLARE_MODULE()
 struct obs_backscrub_filter_t {
     // internal filter state
     void *maskctx;
-    char *modelname;
+    const char *modelname;
     size_t width;
     size_t height;
     cv::Mat input;
@@ -91,7 +91,7 @@ static void *obs_backscrub_create(obs_data_t *settings, obs_source_t *source) {
     // and setting initial values for filter settings
     auto *filter = new obs_backscrub_filter_t;
     obs_printf(filter, "create");
-    filter->modelname = strdup(_obs_backscrub_get_path(_obs_backscrub_get_model(settings)));
+    filter->modelname = _obs_backscrub_get_path(_obs_backscrub_get_model(settings));
     filter->width = BS_WIDTH;
     filter->height = BS_HEIGHT;
     if (!filter->modelname) {
@@ -103,6 +103,7 @@ static void *obs_backscrub_create(obs_data_t *settings, obs_source_t *source) {
         obs_backscrub_dbg, nullptr, nullptr, nullptr, nullptr);
     if (!filter->maskctx) {
         obs_printf(filter, "oops initialising backscrub");
+        bfree(filter->modelname);
         delete filter;
         return NULL;
     }
@@ -126,20 +127,21 @@ static obs_properties_t *obs_backscrub_get_properties(void *state) {
 static void obs_backscrub_update(void *state, obs_data_t *settings) {
     obs_backscrub_filter_t *filter = (obs_backscrub_filter_t *)state;
     const char *model = _obs_backscrub_get_model(settings);
+    const char *newmodelname = _obs_backscrub_get_path(model);
     obs_printf(filter, "update: model: %s=>%s", filter->modelname, model);
     // here we change any filter settings (eg: model used, feathering edges, bilateral smoothing)
-    if (strcmp(model, filter->modelname)) {
+    if (newmodelname && strcmp(model, filter->modelname)) {
         // stop mask thread
         filter->done = true;
         filter->new_frame = true;
         filter->cond.notify_one();
         filter->tid.join();
         // re-init backscrub and start thread again
-        bs_maskgen_delete(filter->maskctx);
         if(filter->modelname) {
-            free((char *)filter->modelname);
+            bs_maskgen_delete(filter->maskctx);
+            bfree((char *)filter->modelname);
         }
-        filter->modelname = strdup(_obs_backscrub_get_path(model));
+        filter->modelname = newmodelname;
         filter->maskctx = bs_maskgen_new(filter->modelname, BS_THREADS, filter->width, filter->height,
             obs_backscrub_dbg, nullptr, nullptr, nullptr, nullptr);
         if (!filter->maskctx) {
@@ -161,9 +163,9 @@ static void obs_backscrub_destroy(void *state) {
     filter->cond.notify_one();
     filter->tid.join();
     // free memory
-    bs_maskgen_delete(filter->maskctx);
     if(filter->modelname) {
-        free((char *)filter->modelname);
+        bs_maskgen_delete(filter->maskctx);
+        bfree((char *)filter->modelname);
     }
     delete filter;
     obs_printf(state, "destroy(%p): done");
