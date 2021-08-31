@@ -94,12 +94,17 @@ static void *obs_backscrub_create(obs_data_t *settings, obs_source_t *source) {
     filter->modelname = strdup(_obs_backscrub_get_path(_obs_backscrub_get_model(settings)));
     filter->width = BS_WIDTH;
     filter->height = BS_HEIGHT;
+    if (!filter->modelname) {
+        obs_printf(filter, "modelname is null");
+        delete filter;
+        return NULL;
+    }
     filter->maskctx = bs_maskgen_new(filter->modelname, BS_THREADS, filter->width, filter->height,
         obs_backscrub_dbg, nullptr, nullptr, nullptr, nullptr);
     if (!filter->maskctx) {
         obs_printf(filter, "oops initialising backscrub");
         delete filter;
-        filter = NULL;
+        return NULL;
     }
     filter->new_frame = false;
     filter->done = false;
