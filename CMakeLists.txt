@@ -33,3 +33,7 @@ target_link_libraries(obs-backscrub
         ${LIBOBS_LIBRARIES}
         backscrub
         ${OpenCV_LIBS})
+
+include(GNUInstallDirs)
+install(TARGETS obs-backscrub 
+        LIBRARY	DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/obs-plugins")
