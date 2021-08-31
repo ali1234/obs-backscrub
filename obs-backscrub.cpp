@@ -103,7 +103,7 @@ static void *obs_backscrub_create(obs_data_t *settings, obs_source_t *source) {
         obs_backscrub_dbg, nullptr, nullptr, nullptr, nullptr);
     if (!filter->maskctx) {
         obs_printf(filter, "oops initialising backscrub");
-        bfree(filter->modelname);
+        bfree((char *)filter->modelname);
         delete filter;
         return NULL;
     }
