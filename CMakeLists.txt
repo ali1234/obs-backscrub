@@ -43,3 +43,9 @@ target_link_libraries(obs-backscrub
 include(GNUInstallDirs)
 install(TARGETS obs-backscrub
         LIBRARY	DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/obs-plugins")
+install(DIRECTORY backscrub/models/
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/obs/obs-plugins/obs-backscrub
+        FILES_MATCHING
+        PATTERN "*.tflite"
+        PATTERN "*.md"
+        PATTERN "body-pix" EXCLUDE)
